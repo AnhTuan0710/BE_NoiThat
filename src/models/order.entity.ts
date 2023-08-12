@@ -3,14 +3,11 @@ import { OrderDetail } from './orderDetail';
 import { Product } from './product.entity';
 import { User } from './user.entity';
 
-@Entity('dv_order')
+@Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  orderNumber: string;
-
+  
   @Column()
   totalAmount: number;
 

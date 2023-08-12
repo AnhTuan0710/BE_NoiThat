@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Order } from './order.entity';
-@Entity({ name: 'dv_user' })
+@Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
   id?: number;
@@ -11,7 +11,7 @@ export class User {
   @Column({ length: 500 })
   email: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, default: 'user' })
   role?: string;
 
   @Column()

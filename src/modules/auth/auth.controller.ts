@@ -32,6 +32,10 @@ export class AuthController {
       this.logger.warn(`Email is already used ${signUpDto.email}`);
       throw new HttpException('Email is already used', HttpStatus.BAD_REQUEST);
     }
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+    await this.userService.regiter({email,name, password: hashedPassword});
+    this.logger.log(`Signup new user with data ${JSON.stringify(signUpDto)}`);
     try {
       await this.mailService.sendCreateUserEmail(name, email, password);
       this.logger.log(`Send create user mail to email ${signUpDto.email}`);
@@ -39,10 +43,6 @@ export class AuthController {
       this.logger.error('sendEmail error: ', error);
       return
     }
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-    await this.userService.regiter({email,name, password: hashedPassword});
-    this.logger.log(`Signup new user with data ${JSON.stringify(signUpDto)}`);
     return {
       status: HttpStatus.OK,
       message: 'Sign up successfully',

@@ -18,6 +18,13 @@ export class RegisterDto {
   })
   name: string;
 
+  @ApiProperty({
+    description: 'role',
+    example: 'long',
+    default:"admin"
+  })
+  role: string;
+
   @IsString()
   @IsNotEmpty()
   @ApiProperty({

@@ -29,7 +29,6 @@ export class OrderService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     const order = await this.orderRepository.create({ user });
     order.totalAmount = createOrderDto.totalAmount,
-      order.orderNumber = createOrderDto.orderNumber,
       order.create_date = new Date()
     order.update_date = new Date()
     await this.orderRepository.save(order);
@@ -68,10 +67,6 @@ export class OrderService {
 
   async updateOrder(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.orderRepository.findOne({ where: { id: id } });
-
-    if (updateOrderDto.orderNumber) {
-      order.orderNumber = updateOrderDto.orderNumber;
-    }
 
     if (updateOrderDto.totalAmount) {
       order.totalAmount = updateOrderDto.totalAmount;
@@ -133,15 +128,15 @@ export class OrderService {
       currentDate = addDays(currentDate, 1);
     }
     const result: ReportRenuave[] = await this.orderRepository
-      .createQueryBuilder('dv_order')
-      .select('DATE(dv_order.create_date) as time')
-      .addSelect('SUM(dv_order.totalAmount) as total')
-      .addSelect('COUNT(dv_order.id) as total_invoice')
-      .where(`dv_order.create_date >= :startDate AND dv_order.create_date <= :endDate`, { startDate, endDate })
-      .andWhere('dv_order.active_flg != 0')
-      .andWhere('dv_order.status != 0')
-      .groupBy('DATE(dv_order.create_date)')
-      .orderBy('DATE(dv_order.create_date)')
+      .createQueryBuilder('orders')
+      .select('DATE(orders.create_date) as time')
+      .addSelect('SUM(orders.totalAmount) as total')
+      .addSelect('COUNT(orders.id) as total_invoice')
+      .where(`orders.create_date >= :startDate AND orders.create_date <= :endDate`, { startDate, endDate })
+      .andWhere('orders.active_flg != 0')
+      .andWhere('orders.status != 0')
+      .groupBy('DATE(orders.create_date)')
+      .orderBy('DATE(orders.create_date)')
       .getRawMany();
 
     let listData: ReportRenuave[] = []
@@ -166,14 +161,14 @@ export class OrderService {
 
   async getTotalByMonth(): Promise<ReportRenuave[]> {
     const result = await this.orderRepository
-      .createQueryBuilder('dv_order')
-      .select('MONTH(dv_order.create_date) as time')
-      .addSelect('SUM(dv_order.totalAmount) as total')
-      .addSelect('COUNT(dv_order.id) as total_invoice')
-      .andWhere('dv_order.active_flg != 0')
-      .andWhere('dv_order.status != 0')
-      .groupBy('MONTH(dv_order.create_date)')
-      .orderBy('MONTH(dv_order.create_date)')
+      .createQueryBuilder('orders')
+      .select('MONTH(orders.create_date) as time')
+      .addSelect('SUM(orders.totalAmount) as total')
+      .addSelect('COUNT(orders.id) as total_invoice')
+      .andWhere('orders.active_flg != 0')
+      .andWhere('orders.status != 0')
+      .groupBy('MONTH(orders.create_date)')
+      .orderBy('MONTH(orders.create_date)')
       .getRawMany();
     let listData: ReportRenuave[] = []
     for (let i = 1; i <= 12; i++) {
@@ -203,27 +198,27 @@ export class OrderService {
     const endMonth = endOfMonth(today);
 
     const dailyResult: ReportRenuave[] = await this.orderRepository
-      .createQueryBuilder('dv_order')
-      .select('SUM(dv_order.totalAmount) as total')
-      .addSelect('COUNT(dv_order.id) as total_invoice')
-      .where('dv_order.create_date >= :startOfToday AND dv_order.create_date <= :endOfToday', {
+      .createQueryBuilder('orders')
+      .select('SUM(orders.totalAmount) as total')
+      .addSelect('COUNT(orders.id) as total_invoice')
+      .where('orders.create_date >= :startOfToday AND orders.create_date <= :endOfToday', {
         startOfToday,
         endOfToday,
       })
-      .andWhere('dv_order.active_flg != 0')
-      .andWhere('dv_order.status != 0')
+      .andWhere('orders.active_flg != 0')
+      .andWhere('orders.status != 0')
       .getRawMany();
 
     const monthlyResult: ReportRenuave[] = await this.orderRepository
-      .createQueryBuilder('dv_order')
-      .select('SUM(dv_order.totalAmount) as total')
-      .addSelect('COUNT(dv_order.id) as total_invoice')
-      .where('dv_order.create_date >= :startMonth AND dv_order.create_date <= :endMonth', {
+      .createQueryBuilder('orders')
+      .select('SUM(orders.totalAmount) as total')
+      .addSelect('COUNT(orders.id) as total_invoice')
+      .where('orders.create_date >= :startMonth AND orders.create_date <= :endMonth', {
         startMonth,
         endMonth,
       })
-      .andWhere('dv_order.active_flg != 0')
-      .andWhere('dv_order.status != 0')
+      .andWhere('orders.active_flg != 0')
+      .andWhere('orders.status != 0')
       .getRawMany();
 
     const total_date = dailyResult.length > 0 ? Number(dailyResult[0].total) : 0;

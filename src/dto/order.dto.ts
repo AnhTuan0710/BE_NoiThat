@@ -1,5 +1,4 @@
 export class CreateOrderDto {
-  orderNumber: string;
   totalAmount: number;
   userId: number;
   productIds: ProductOrderDto[];
