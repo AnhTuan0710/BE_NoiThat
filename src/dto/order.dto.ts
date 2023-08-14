@@ -32,13 +32,12 @@ export class CreateOrderDto {
   name: string;
 }
 
-export class UpdateOrderDto {
-  totalAmount?: number;
-  productIds?: ProductOrderDto[];
-  status?: number;
-  phoneNo?: string;
-  name?: string;
-
+export class UpdateOrderDto extends CreateOrderDto {
+  @ApiProperty({
+    description: 'status',
+    example: 1,
+  })
+  status: number;
 }
 
 export class OrderCreateNewDto {

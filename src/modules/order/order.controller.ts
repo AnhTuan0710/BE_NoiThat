@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { Order } from '../../models/order.entity';
 import { CreateOrderDto, ReportRenuave, ReportTime, UpdateOrderDto } from '../../dto/order.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -27,11 +28,13 @@ export class OrderController {
     return await this.orderService.reportTime();
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async getAllOrders(): Promise<Order[]> {
     return await this.orderService.getAllOrders();
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async getOrderById(@Param('id') id: number): Promise<Order> {
     return await this.orderService.getOrderById(id);
@@ -47,6 +50,7 @@ export class OrderController {
     return await this.orderService.updateOrder(id, order);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async deleteOrder(@Param('id') id: number): Promise<void> {
     return await this.orderService.deleteOrder(id);
@@ -56,5 +60,4 @@ export class OrderController {
   async getOrderByUser(@Param('phoneNo') phoneNo: string): Promise<Order[]> {
     return await this.orderService.findByUserId(phoneNo);
   }
-
 }

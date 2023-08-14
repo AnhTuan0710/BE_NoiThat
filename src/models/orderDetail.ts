@@ -8,10 +8,10 @@ export class OrderDetail {
   id: number;
 
   @Column()
-  order_id: number;
+  orderId: number;
 
   @Column()
-  product_id: number;
+  productId: number;
 
   @Column()
   quantity: number;

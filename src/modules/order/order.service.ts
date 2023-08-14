@@ -40,8 +40,8 @@ export class OrderService {
     for (const product of products) {
       const { id, quantity } = product;
       const orderDetail = await this.orderDetailRepository.create({
-        order_id: order.id,
-        product_id: id,
+        orderId: order.id,
+        productId: id,
         quantity,
         status: 1,
         active_flg: 1
@@ -55,7 +55,7 @@ export class OrderService {
     order.products = listProducts;
     await this.orderRepository.save(order);
     try {
-      await this.mailService.sendCreateOrderEmail(order.name, 'sachlinh12345@gmail.com', createOrderDto);
+      await this.mailService.sendCreateOrderEmail(order.name, 'ninhvantuan092000@gmail.com', createOrderDto);
       console.log('Create email order successly')
     } catch (error) {
       console.log('ERROR: Không gửi được email ', error)
@@ -68,46 +68,46 @@ export class OrderService {
   }
 
   async getOrderById(id: number): Promise<Order> {
-    return this.orderRepository.findOne({ where: { id: id }, relations: ['user', 'products'] });
+    return this.orderRepository.findOne({ where: { id: id }, relations: ['products'] });
   }
 
   async updateOrder(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.orderRepository.findOne({ where: { id: id } });
 
-    if (updateOrderDto.totalAmount) {
-      order.total_amount = updateOrderDto.totalAmount;
+    if (updateOrderDto.total_amount) {
+      order.total_amount = updateOrderDto.total_amount;
     }
 
-    if (updateOrderDto.phoneNo) {
-      const user = await this.userRepository.findOne({ where: { phone_no: updateOrderDto.phoneNo } });
-      order.phone_no = user.phone_no;
-    }
-
-    if (updateOrderDto.productIds) {
-      const productUpdate = updateOrderDto.productIds
-      const listOrderDetail = await this.orderDetailRepository.find({ where: { order_id: id } })
-      listOrderDetail.forEach(async (item: OrderDetail) => {
-        await this.orderDetailRepository.delete(item.id)
-      })
-      for (const product of productUpdate) {
-        const { id, quantity } = product;
-        const orderDetail = await this.orderDetailRepository.create({
-          order_id: order.id,
-          product_id: id,
-          quantity,
-        });
-        await this.orderDetailRepository.save(orderDetail);
-      }
-      const ids = updateOrderDto.productIds.map(item => { return item.id })
-      const products = await this.productRepository.findByIds(ids);
-      order.products = products;
+    if (updateOrderDto.phone_no) {
+      order.phone_no = updateOrderDto.phone_no;
     }
 
     if (updateOrderDto.status !== -1) {
       order.status = updateOrderDto.status;
     }
 
-    order.update_date = new Date()
+    if (updateOrderDto.products) {
+      const productUpdate = updateOrderDto.products
+      const listOrderDetail = await this.orderDetailRepository.find({ where: { orderId: id } })
+      listOrderDetail.forEach(async (item: OrderDetail) => {
+        await this.orderDetailRepository.delete(item.id)
+      })
+      for (const product of productUpdate) {
+        const { id, quantity } = product;
+        const orderDetail = await this.orderDetailRepository.create({
+          orderId: order.id,
+          productId: id,
+          quantity,
+          status: updateOrderDto.status,
+          active_flg: 1,
+        });
+        await this.orderDetailRepository.save(orderDetail);
+      }
+      const ids = updateOrderDto.products.map(item => { return item.id })
+      const products = await this.productRepository.findByIds(ids);
+      order.products = products;
+    }
+    order.update_date = new Date();
     return this.orderRepository.save(order);
   }
 
@@ -118,7 +118,7 @@ export class OrderService {
   }
 
   async findByUserId(phoneNo: string): Promise<Order[]> {
-    return this.orderRepository.find({ where: { phone_no: phoneNo, active_flg: 1 }, relations: ['user', 'products', 'orderDetails'] });
+    return this.orderRepository.find({ where: { phone_no: phoneNo, active_flg: 1 }, relations: ['products', 'orderDetails'] });
   }
 
   async getTotalByDay(startDate: string, endDate: string): Promise<ReportRenuave[]> {
