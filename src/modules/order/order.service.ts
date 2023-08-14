@@ -25,31 +25,37 @@ export class OrderService {
   ) { }
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { userId, productIds } = createOrderDto;
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    const order = await this.orderRepository.create({ user });
-    order.totalAmount = createOrderDto.totalAmount,
-      order.create_date = new Date()
+    const { products } = createOrderDto;
+    const order = await this.orderRepository.create();
+    order.total_amount = createOrderDto.total_amount
+    order.create_date = new Date()
     order.update_date = new Date()
+    order.phone_no = createOrderDto.phone_no
+    order.name = createOrderDto.name
+    order.address = createOrderDto.address
+    order.status = 1
+    order.active_flg = 1
     await this.orderRepository.save(order);
     const orderDetails: OrderDetail[] = [];
-    for (const product of productIds) {
+    for (const product of products) {
       const { id, quantity } = product;
       const orderDetail = await this.orderDetailRepository.create({
-        orderId: order.id,
-        productId: id,
+        order_id: order.id,
+        product_id: id,
         quantity,
+        status: 1,
+        active_flg: 1
       });
       await this.orderDetailRepository.save(orderDetail);
       orderDetails.push(orderDetail);
     }
     order.orderDetails = orderDetails;
-    const ids = createOrderDto.productIds.map(item => { return item.id })
-    const products = await this.productRepository.findByIds(ids);
-    order.products = products;
+    const ids = createOrderDto.products.map(item => { return item.id })
+    const listProducts = await this.productRepository.findByIds(ids);
+    order.products = listProducts;
     await this.orderRepository.save(order);
     try {
-      await this.mailService.sendCreateOrderEmail(user.name, user.email, createOrderDto);
+      await this.mailService.sendCreateOrderEmail(order.name, 'sachlinh12345@gmail.com', createOrderDto);
       console.log('Create email order successly')
     } catch (error) {
       console.log('ERROR: Không gửi được email ', error)
@@ -58,7 +64,7 @@ export class OrderService {
   }
 
   async getAllOrders(): Promise<Order[]> {
-    return this.orderRepository.find({ where: { active_flg: 1 }, relations: ['user', 'products', 'orderDetails'] });
+    return this.orderRepository.find({ where: { active_flg: 1 }, relations: ['products', 'orderDetails'] });
   }
 
   async getOrderById(id: number): Promise<Order> {
@@ -69,25 +75,25 @@ export class OrderService {
     const order = await this.orderRepository.findOne({ where: { id: id } });
 
     if (updateOrderDto.totalAmount) {
-      order.totalAmount = updateOrderDto.totalAmount;
+      order.total_amount = updateOrderDto.totalAmount;
     }
 
-    if (updateOrderDto.userId) {
-      const user = await this.userRepository.findOne({ where: { id: updateOrderDto.userId } });
-      order.user = user;
+    if (updateOrderDto.phoneNo) {
+      const user = await this.userRepository.findOne({ where: { phone_no: updateOrderDto.phoneNo } });
+      order.phone_no = user.phone_no;
     }
 
     if (updateOrderDto.productIds) {
       const productUpdate = updateOrderDto.productIds
-      const listOrderDetail = await this.orderDetailRepository.find({ where: { orderId: id } })
+      const listOrderDetail = await this.orderDetailRepository.find({ where: { order_id: id } })
       listOrderDetail.forEach(async (item: OrderDetail) => {
         await this.orderDetailRepository.delete(item.id)
       })
       for (const product of productUpdate) {
         const { id, quantity } = product;
         const orderDetail = await this.orderDetailRepository.create({
-          orderId: order.id,
-          productId: id,
+          order_id: order.id,
+          product_id: id,
           quantity,
         });
         await this.orderDetailRepository.save(orderDetail);
@@ -111,9 +117,8 @@ export class OrderService {
     await this.orderRepository.update(id, order);
   }
 
-  async findByUserId(userId: number): Promise<Order[]> {
-    const user = await this.userRepository.findOne({ where: { id: userId, active_flg: 1 } });
-    return this.orderRepository.find({ where: { user: user, active_flg: 1 }, relations: ['user', 'products', 'orderDetails'] });
+  async findByUserId(phoneNo: string): Promise<Order[]> {
+    return this.orderRepository.find({ where: { phone_no: phoneNo, active_flg: 1 }, relations: ['user', 'products', 'orderDetails'] });
   }
 
   async getTotalByDay(startDate: string, endDate: string): Promise<ReportRenuave[]> {

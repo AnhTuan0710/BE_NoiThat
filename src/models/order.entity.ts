@@ -1,18 +1,23 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, ManyToMany, JoinTable, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { OrderDetail } from './orderDetail';
 import { Product } from './product.entity';
-import { User } from './user.entity';
 
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
-  
-  @Column()
-  totalAmount: number;
 
-  @ManyToOne(() => User, user => user.orders)
-  user: User;
+  @Column()
+  total_amount: number;
+
+  @Column()
+  phone_no: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  address: string;
 
   @ManyToMany(() => Product)
   @JoinTable()

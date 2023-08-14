@@ -1,11 +1,11 @@
-import { ProductSearchDto, ProductTrendingDto } from './../../dto/product.dto';
-import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
+import { ProductCreateDto, ProductSearchDto, ProductTrendingDto, ProductUpdateDto } from './../../dto/product.dto';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from '../../models/product.entity';
-import { ProductDto, ProductRespose } from '../../dto/product.dto';
+import { ProductRespose } from '../../dto/product.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
-// @UseGuards(JwtAuthGuard)
 @Controller('products')
 @ApiTags('products')
 export class ProductController {
@@ -16,8 +16,9 @@ export class ProductController {
     return await this.productService.getBestSellingProducts();
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('create')
-  async create(@Body() createProductDto: ProductDto): Promise<Product> {
+  async create(@Body() createProductDto: ProductCreateDto): Promise<Product> {
     return await this.productService.createProduct(createProductDto);
   }
 
@@ -31,19 +32,15 @@ export class ProductController {
     return await this.productService.findOne(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateProductDto: ProductDto): Promise<Product> {
+  async update(@Param('id') id: number, @Body() updateProductDto: ProductUpdateDto): Promise<Product> {
     return await this.productService.updateProduct(id, updateProductDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async delete(@Param('id') id: number): Promise<void> {
     await this.productService.delete(id);
   }
-
-  @Get('category/:id')
-  async findAllWithCategory(@Param('id') id: number): Promise<Product[]> {
-    return await this.productService.getAllProductOfCategory(id);
-  }
-
 }

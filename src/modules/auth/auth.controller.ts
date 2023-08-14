@@ -1,10 +1,11 @@
-import { Controller, Post, Body, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import { ChangePWDto, RegisterDto } from '../../dto/register.dto';
+import { Controller, Post, Body, Logger, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { MailService } from '../mail/mail.service';
 import { UsersService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import * as bcrypt from 'bcrypt';
 import { ApiTags } from '@nestjs/swagger';
+import { ChangePasswordDto, LoginDto, RegisterDto } from '../../dto/user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -16,9 +17,8 @@ export class AuthController {
     private mailService: MailService,
   ) { }
 
-  // @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() req) {
+  async login(@Body() req: LoginDto) {
     this.logger.log(`Bạn đang đăng nhập với tài khoản ${req}`);
     return this.authService.login(req);
   }
@@ -49,8 +49,9 @@ export class AuthController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('change')
-  async changePassword(@Body() req: ChangePWDto) {
-    return this.authService.changePass(req.email, req.pwold, req.pwnew);
+  async changePassword(@Body() req: ChangePasswordDto) {
+    return this.authService.changePass(req.email, req.password_old, req.password_new);
   }
 }

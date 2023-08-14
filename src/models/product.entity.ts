@@ -11,7 +11,10 @@ export class Product {
   name: string;
 
   @Column()
-  price: number;
+  listed_price: number;
+
+  @Column()
+  sell_price: number;
 
   @Column()
   image: string;

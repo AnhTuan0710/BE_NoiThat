@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { jwtConstants } from '../../constants/auth';
+import { LoginDto } from '../../dto/user.dto';
 const jwt = require('jsonwebtoken');
 
 @Injectable()
@@ -21,7 +22,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: { email: string, password: string, role?: string }) {
+  async login(user: LoginDto) {
     const dbUser = await this.usersService.findOne(user.email);
     if (user.role) {
       if (dbUser && dbUser.active_flg !== 0 && await bcrypt.compare(user.password, dbUser.password) && dbUser.role === 'admin') {

@@ -5,17 +5,14 @@ export async function MailCreateOrderTemplate(name: string, email: string, creat
 
   return {
     to: email,
-    subject: 'Mua hàng',
+    subject: 'Đơn hàng mới',
     html: `
       <div style="width: 680px">
         <p style="margin-bottom: 16px; line-height: 22px">
-          Xin chào ${name}! <br />
-        </p>
-        <p style="margin-bottom: 16px; line-height: 22px">
-         Bạn đã mua 1 đơn hàng có giá trị ${createOrderDto.totalAmount}. Vui lòng chờ nhà cung cấp xác nhận
+         Khách hàng: ${createOrderDto.name},  SĐT: ${createOrderDto.phone_no} ,Địa chỉ: ${createOrderDto.address} đã đăt 1 đơn hàng với giá trị : ${createOrderDto.total_amount}.
          </p>
          <p style="margin-bottom: 16px; line-height: 22px">
-         Đăng nhập để xem chi tiết
+         Vui lòng xác nhận đơn hàng
         </p>
       </div>
     `,

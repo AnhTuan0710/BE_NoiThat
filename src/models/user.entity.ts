@@ -35,6 +35,6 @@ export class User {
   @Column({ default: 1 })
   status?: number;
 
-  @OneToMany(() => Order, order => order.user)
+  @OneToMany(() => Order, order => order.phone_no)
   orders?: Order[];
 }

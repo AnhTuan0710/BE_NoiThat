@@ -8,13 +8,19 @@ export class OrderDetail {
   id: number;
 
   @Column()
-  orderId: number;
+  order_id: number;
 
   @Column()
-  productId: number;
+  product_id: number;
 
   @Column()
   quantity: number;
+
+  @Column()
+  status: number;
+
+  @Column()
+  active_flg: number;
 
   @ManyToOne(() => Order, (order) => order.products)
   order: Order;

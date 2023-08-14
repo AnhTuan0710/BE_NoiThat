@@ -52,9 +52,9 @@ export class OrderController {
     return await this.orderService.deleteOrder(id);
   }
 
-  @Get('user/:id')
-  async getOrderByUser(@Param('id') id: number): Promise<Order[]> {
-    return await this.orderService.findByUserId(id);
+  @Get('user/:phoneNo')
+  async getOrderByUser(@Param('phoneNo') phoneNo: string): Promise<Order[]> {
+    return await this.orderService.findByUserId(phoneNo);
   }
 
 }
