@@ -1,0 +1,27 @@
+{
+  "app": {
+    "api": {
+      "port": 8000,
+      "prefix": "api"
+    },
+    "url": {
+      "admin": "http://localhost:5685"
+    }
+  },
+  "mail_config": {
+    "host": "smtp.gmail.com",
+    "port": 465,
+    "user": "anhtuanbarca@gmail.com",
+    "pass": "cqeuppmazrjpjeex",
+    "from": "anhtuanbarca@gmail.com",
+    "secure": true
+  },
+  "database": {
+    "type": "mysql",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "username": "root",
+    "password": "123456",
+    "database": "furiture"
+  }
+}

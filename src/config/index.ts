@@ -1,9 +1,5 @@
 import * as config from 'config';
 
-export const APP_URL = {
-  ADMIN_URL: config.get<string>('app.url.admin'),
-}
-
 export const MAIL_CONFIG = {
   HOST: config.get<string>('mail_config.host'),
   PORT: config.get<number>('mail_config.port'),
